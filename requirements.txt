@@ -1,2 +1,3 @@
 pyspark
 confluent-kafka
+py4j
