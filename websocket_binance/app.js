@@ -1,32 +1,52 @@
-let ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade')
-let ws2 = new WebSocket('wss://stream.binance.com:9443/ws/etheur@trade')
+const WebSocket = require("ws");
+const Kafka = require("node-rdkafka");
 
+// Créez des connexions WebSocket
+const ws1 = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');
+const ws2 = new WebSocket('wss://stream.binance.com:9443/ws/etheur@trade');
 
-let stockPriceElement = document.getElementById('stock-price')
-let stockPriceElement2 = document.getElementById('stock-price2')
-let value = document.getElementById('value')
-let value2 = document.getElementById('value2')
-let date = document.getElementById('timestamp')
-let date2 = document.getElementById('timestamp2')
+// Configurez le producteur Kafka
+const producer = new Kafka.Producer({
+    'metadata.broker.list': 'kafka:9092', // Remplacez "kafka" par le nom de votre conteneur Kafka
+    'dr_cb': true
+});
 
-let lastPrice = null;
+// Gestionnaire d'événement pour gérer la confirmation de production du message
+producer.on('delivery-report', function (err, report) {
+    if (err) {
+        console.error('Erreur de production : ' + err);
+    } else {
+        console.log('Message produit avec succès à la partition ' + report.partition);
+    }
+});
 
-ws.onmessage = (event) => {
-    let stockObject = JSON.parse(event.data);
-    let price = parseFloat(stockObject.p).toFixed(2);
-    value.innerText = (stockObject.s)
-    stockPriceElement.innerText = price
-    stockPriceElement.style.color = !lastPrice || lastPrice === price ? 'black' : price > lastPrice ? 'green' : 'red';
-    date.innerText = (stockObject.E)
-    lastPrice = price;
+// Gestionnaire d'événement pour gérer la connexion réussie du producteur Kafka
+producer.on('ready', function () {
+    console.log('Producteur Kafka est prêt à produire des messages.');
+});
+
+// Gestionnaire d'événement pour gérer les erreurs de production
+producer.on('event.error', function (err) {
+    console.error('Erreur du producteur Kafka : ' + err);
+});
+
+// Connectez le producteur Kafka
+producer.connect();
+
+// Fonction pour traiter les messages reçus
+function processMessage(data) {
+    const stockObject = JSON.parse(data);
+    let crypto = {
+        "name": stockObject.s,
+        "date": new Date(stockObject.E).toISOString(),
+        "value": parseFloat(stockObject.p).toFixed(2)
+    }
+
+    // Envoyez la valeur lastPrice au topic Kafka
+    producer.produce('datas_binance', null, Buffer.from(JSON.stringify({crypto})), null, Date.now());
+
 }
 
-ws2.onmessage = (event) => {
-    let stockObject = JSON.parse(event.data);
-    let price = parseFloat(stockObject.p).toFixed(2);
-    value2.innerText = (stockObject.s)
-    stockPriceElement2.innerText = price
-    stockPriceElement2.style.color = !lastPrice || lastPrice === price ? 'black' : price < lastPrice ? 'green' : 'red';
-    date2.innerText = (stockObject.E)
-    lastPrice = price;
-}
+// Gérez les messages reçus des connexions WebSocket
+ws1.on('message', processMessage);
+ws2.on('message', processMessage);
