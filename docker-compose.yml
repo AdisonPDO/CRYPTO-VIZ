@@ -26,6 +26,8 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
+
+  # Spark Master
   spark:
     image: 'bitnami/spark:latest'
     container_name: myapp-spark-master
@@ -35,6 +37,10 @@ services:
       - '8080:8080'
     environment:
       - SPARK_MODE=master
+    volumes:
+      - '/Users/adisonpereiradeoliveira/Desktop/mytable/CRYPTO-VIZ/spark:/opt/bitnami/spark/work'
+#    command: sh -c "pip install -r requirements.txt && cd /opt/bitnami/spark/work && python script.py"
+
   spark_worker:
     image: 'bitnami/spark:latest'
     container_name: myapp-spark-worker
@@ -43,3 +49,7 @@ services:
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077
+    volumes:
+      - '/Users/adisonpereiradeoliveira/Desktop/mytable/CRYPTO-VIZ/spark:/opt/bitnami/spark/work'
+    
+    
