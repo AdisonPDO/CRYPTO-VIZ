@@ -6,6 +6,10 @@ Ce guide vous explique comment configurer un cluster Kind, charger une image Doc
 
 installer kind sur votre ordinateur
 
+```
+https://github.com/kubernetes-sigs/kind
+```
+
 Créez un cluster Kind en utilisant la commande suivante :
 
 ```bash
