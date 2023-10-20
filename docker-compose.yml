@@ -3,6 +3,14 @@ networks:
   myapp:
     name: myapp
 services:
+
+  api:
+    build: ./websocket_binance/
+    ports:
+      - "3000:3000"
+    networks:
+      - myapp
+
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     container_name: myapp-zookeeper
@@ -12,6 +20,7 @@ services:
       - '2181:2181'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+
   kafka:
     image: 'bitnami/kafka:latest'
     container_name: myapp-kafka
