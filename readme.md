@@ -1,6 +1,6 @@
 # CRYPTO VIZ
 
-![Graph](graph.png)
+![Graph](assets/graph.png)
 
 ### Description 
 
