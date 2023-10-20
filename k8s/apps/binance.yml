@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wb-binance-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wb-binance
+  template:
+    metadata:
+      labels:
+        app: wb-binance
+    spec:
+      containers:
+      - name: wb-binance-container
+        image: wb-binance:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wb-binance-service
+spec:
+  selector:
+    app: wb-binance
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wb-binance-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx" # Assuming you are using the nginx ingress controller.
+spec:
+  rules:
+  - host: wb-binance.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wb-binance-service
+            port:
+              number: 80
