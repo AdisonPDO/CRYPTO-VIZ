@@ -8,7 +8,7 @@ spark = SparkSession.builder.appName("KafkaSparkStreaming").getOrCreate()
 
 # Config de la session Spark
 kafka_stream = spark.readStream.format("kafka") \
-    .option("kafka.bootstrap.servers", "kafka:9092") \
+    .option("kafka.bootstrap.servers", "localhost:9092") \
     .option("subscribe", "datas_binance") \
     .load()
 
@@ -20,7 +20,7 @@ kafka_stream = spark.readStream.format("kafka") \
 #     "date": new Date(stockObject.E).toISOString(),
 #     "value": parseFloat(stockObject.p).toFixed(2)
 # }
-schema = StructType().add("name", StringTypes()).add("date", StringType()).add("value", StringType())
+schema = StructType().add("name", StringType()).add("date", StringType()).add("value", StringType())
 
 # Conversion des données en format df
 data_df = kafka_stream.selectExpr("CAST(value AS STRING)").select(from_json("value", schema).alias("crypto_data"))
