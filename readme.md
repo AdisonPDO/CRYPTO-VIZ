@@ -24,3 +24,26 @@ Les principales fonctionnalités du projet incluent :
 
 ### Spark 
 
+
+### ajouter kafka connect 
+ 
+curl -X POST http://localhost:8083/connectors -H 'Content-Type: application/json' -d \
+'{
+  "name": "elasticsearch-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "datas_binance",
+    "key.ignore": "true",
+    "schema.ignore": "true",
+    "connection.url": "http://elasticsearch:9200",
+    "type.name": "_doc",
+    "name": "elasticsearch-sink",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}'
+
+
+### voir si il y a des donnée dans elasticsearch
+curl http://localhost:9200/datas_binance/_search?pretty
