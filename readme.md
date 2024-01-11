@@ -22,5 +22,8 @@ Les principales fonctionnalités du projet incluent :
 
 ### Kafka 
 
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic datas_binance
+
 ### Spark 
 
+spark-submit --master spark://spark:7077 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 <SCRIPT_NAME>
