@@ -1,6 +1,6 @@
 #!/bin/bash
 # Création du connecteur Elasticsearch
-curl -X POST http://kafka-connect:8083/connectors -H 'Content-Type: application/json' -d '{
+curl -X POST http://localhost:8083/connectors -H 'Content-Type: application/json' -d '{
   "name": "elasticsearch-sink",
   "config": {
     "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
