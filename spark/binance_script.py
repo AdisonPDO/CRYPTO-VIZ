@@ -13,6 +13,8 @@ kafka_stream = spark.readStream.format("kafka") \
     .option("subscribe", "datas_binance") \
     .load()
 
+
+
 # Traitement des données
 
 # Definition du schema pour le type de message suivant
@@ -38,6 +40,8 @@ data_df = kafka_stream.selectExpr("CAST(value AS STRING)") \
 query = data_df.writeStream.outputMode("append") \
     .format("console") \
     .start()
+
+kafka_stream_write = spark.writeStream
 
 query.awaitTermination()
 

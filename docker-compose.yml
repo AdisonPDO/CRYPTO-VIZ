@@ -47,7 +47,7 @@ services:
     environment:
       - SPARK_MODE=master
     volumes:
-      - '/Users/adisonpereiradeoliveira/epitech/spark:/opt/bitnami/spark/work'
+      - './spark:/opt/bitnami/spark/work'
 #    command: sh -c "pip install -r requirements.txt && cd /opt/bitnami/spark/work && python script.py"
 
   spark_worker:
@@ -59,6 +59,45 @@ services:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark:7077
     volumes:
-      - '/Users/adisonpereiradeoliveira/epitech/spark:/opt/bitnami/spark/work'
+      - './spark:/opt/bitnami/spark/work'
     
+#   #elasticsearch 
+#   elasticsearch: 
+#     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.1
+#     ports:
+#       - "9200:9200"
+#       - "9300:9300"
+#     environment:
+#       - xpack.security.enabled=false
+#       - discovery.type=single-node
+#       - bootstrap.memory_lock=true
+#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#       - cluster.routing.allocation.disk.threshold_enabled=false
+#     ulimits:
+#       memlock:
+#         soft: -1
+#         hard: -1
+#     networks:
+#       - myapp
+#     volumes:
+#       - elastic_data:/usr/share/elasticsearch/data/
     
+# #grafana
+#   grafana:
+#     image: grafana/grafana:latest
+#     container_name: monitoring_grafana
+#     restart: unless-stopped
+#     ports:
+#       - "3001:3000"
+#     environment:
+#       - GF_SECURITY_ADMIN_PASSWORD=12345
+#     networks:
+#       - myapp
+#     volumes:
+#       - grafana-data:/var/lib/grafana
+
+# volumes:
+#   elastic_data: {}
+#   grafana-data: {}
+
+
