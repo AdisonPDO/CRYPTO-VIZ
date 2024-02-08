@@ -13,11 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: xxxxxxxxxxxxxxxx@xx
-      - name: Set up Docker Buildx
-        uses: xxxxxxxxxxxxxxxxxxxxxxxxxx@xx
-      - name: Login to DockerHub
-        run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        uses: actions/checkout@v4
+  
+      - uses: KengoTODA/actions-setup-docker-compose@v1.0.9
+        with:
+          # the version of docker-compose command
+          version: '2.14.2'
+  
       - name: Build and push
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKERHUB_USERNAME }}/my-image:latest --push .
+          docker-compose build
