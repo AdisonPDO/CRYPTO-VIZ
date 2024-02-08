@@ -22,7 +22,16 @@ Les principales fonctionnalités du projet incluent :
 
 ### Kafka 
 
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic datas_binance
+
+
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic datas_clean
+
 ### Spark 
+
+Lancer spark :
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 /opt/bitnami/spark/work/binance_script.py
 
 
 ### ajouter kafka connect 
