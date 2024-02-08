@@ -10,7 +10,7 @@ print('PySpark Version :'+spark.version)
 print('PySpark Version :'+spark.sparkContext.version)
 # Config de la session Spark
 df = spark.readStream.format("kafka") \
-    .option("kafka.bootstrap.servers", "kafka:9092") \
+    .option("kafka.bootstrap.servers", "broker:9092") \
     .option("subscribe", "datas_binance") \
     .load()
 
@@ -51,7 +51,7 @@ def foreach_batch_function(batch_df, epoch_id):
     ds = batch_df.selectExpr("CAST(name AS STRING) AS key", "to_json(struct(*)) AS value") \
         .write \
         .format("kafka") \
-        .option("kafka.bootstrap.servers", "kafka:9092") \
+        .option("kafka.bootstrap.servers", "broker:9092") \
         .option("topic", "datas_clean") \
         .save()
 
