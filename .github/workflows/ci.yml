@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+  
+      - uses: KengoTODA/actions-setup-docker-compose@v1.0.9
+        with:
+          # the version of docker-compose command
+          version: '2.14.2'
+  
+      - name: Build and push
+        run: |
+          docker-compose build

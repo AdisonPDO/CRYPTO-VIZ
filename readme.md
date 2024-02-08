@@ -35,7 +35,8 @@ spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 /opt/bi
 
 
 ### ajouter kafka connect 
- 
+
+```bash
 curl -X POST http://localhost:8083/connectors -H 'Content-Type: application/json' -d \
 '{
   "name": "elasticsearch-sink",
@@ -52,7 +53,8 @@ curl -X POST http://localhost:8083/connectors -H 'Content-Type: application/json
     "value.converter.schemas.enable": "false"
   }
 }'
-
+```
 
 ### voir si il y a des donnée dans elasticsearch
+
 curl http://localhost:9200/datas_binance/_search?pretty
