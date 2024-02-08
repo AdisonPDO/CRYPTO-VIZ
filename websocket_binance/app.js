@@ -4,10 +4,11 @@ const Kafka = require("node-rdkafka");
 // Créez des connexions WebSocket
 const ws1 = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');
 const ws2 = new WebSocket('wss://stream.binance.com:9443/ws/etheur@trade');
-
+const kafkaBroker = process.env.KAFKA_BROKER;
+console.log("Kafka broker: " + kafkaBroker);
 // Configurez le producteur Kafka
 const producer = new Kafka.Producer({
-    'metadata.broker.list': 'kafka:9092', // Remplacez "kafka" par le nom de votre conteneur Kafka
+    'metadata.broker.list': kafkaBroker, // Remplacez "kafka" par le nom de votre conteneur Kafka
     'dr_cb': true
 });
 
@@ -39,9 +40,9 @@ function processMessage(data) {
     let crypto = {
         "name": stockObject.s,
         "date": new Date(stockObject.E).toISOString(),
-        "value": parseFloat(stockObject.p).toFixed(2)
+        "value": parseFloat(stockObject.p)
     }
-
+    //console.log(crypto);
     // Envoyez la valeur lastPrice au topic Kafka
     producer.produce('datas_binance', null, Buffer.from(JSON.stringify({crypto})), null, Date.now());
 
