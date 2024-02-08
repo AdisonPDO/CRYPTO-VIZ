@@ -6,42 +6,59 @@ from pyspark.sql.types import StructType, StructField, StringType
 
 # Création d'une session Spark
 spark = SparkSession.builder.appName("BinanceSession").getOrCreate()
-
+print('PySpark Version :'+spark.version)
+print('PySpark Version :'+spark.sparkContext.version)
 # Config de la session Spark
-kafka_stream = spark.readStream.format("kafka") \
+df = spark.readStream.format("kafka") \
     .option("kafka.bootstrap.servers", "kafka:9092") \
     .option("subscribe", "datas_binance") \
     .load()
 
-
-
-# Traitement des données
-
-# Definition du schema pour le type de message suivant
-# let crypto = {
-#     "name": stockObject.s,
-#     "date": new Date(stockObject.E).toISOString(),
-#     "value": parseFloat(stockObject.p).toFixed(2)
-# }
-# {"crypto":{"name":"BTCUSDT","date":"2024-01-11T13:55:14.993Z","value":"47316.66"}}
-
+# Schéma pour parser les données JSON
 schema = StructType([
     StructField("crypto", StructType([
-        StructField("name", StringType()),
-        StructField("date", StringType()),
-        StructField("value", StringType())
-    ]))
+        StructField("name", StringType(), True),
+        StructField("date", StringType(), True),
+        StructField("value", StringType(), True)
+    ]), True)
 ])
-# Conversion des données en dataframe
-data_df = kafka_stream.selectExpr("CAST(value AS STRING)") \
-                      .select(from_json("value", schema).alias("data")) \
-                      .select("data.crypto.*")
-# Sortie des données
-query = data_df.writeStream.outputMode("append") \
-    .format("console") \
+
+# Extraction et parsing des données JSON
+parsed_df = df.select(from_json(col("value").cast("string"), schema).alias("parsed_value"))
+
+# Sélection des champs nécessaires
+crypto_df = parsed_df.select(
+    col("parsed_value.crypto.name").alias("name"),
+    col("parsed_value.crypto.date").alias("date"),
+    col("parsed_value.crypto.value").alias("value")
+)
+
+# Fonction pour traiter chaque micro-batch et envoyer les données à un autre topic Kafka
+def foreach_batch_function(batch_df, epoch_id):
+    # Affichage de la première ligne du micro-batch
+    print("New micro-batch: ")
+    batch_df.show(1, False)
+
+    # voici la sortie du micro-batch
+    # +------+-------------------+-------------------+
+    # |name  |date               |value              |
+    # +------+-------------------+-------------------+
+    # |bitcoin|2021-10-01 12:00:00|50000              |
+    # +------+-------------------+-------------------+
+
+    #
+    # Envoi des données vers un topic Kafka spécifique
+    ds = batch_df.selectExpr("CAST(name AS STRING) AS key", "to_json(struct(*)) AS value") \
+        .write \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", "kafka:9092") \
+        .option("topic", "datas_clean") \
+        .save()
+
+# Application de la fonction sur chaque micro-batch
+query = crypto_df.writeStream \
+    .foreachBatch(foreach_batch_function) \
+    .outputMode("update") \
     .start()
 
-kafka_stream_write = spark.writeStream
-
 query.awaitTermination()
-
